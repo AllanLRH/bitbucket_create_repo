@@ -24,7 +24,7 @@ def create_repo(username, reponame, scm="git", private=True):
             username=username, reponame=reponame)
         return repoUrl, rsp
     else:
-        print("Something went wrong!", fie=sys.stderr)
+        print("Something went wrong!", file=sys.stderr)
         sys.exit(1)
 
 
@@ -36,15 +36,29 @@ def git_add_and_push_to_remote(username, reponame):
     subprocess.call("git push origin --tags".split())
 
 
+def initialize_repo_if_nonexistent():
+    if '.git' in os.listdir('.'):
+        return True
+    try:
+        git_base_dir = subprocess.check_output('git rev-parse --show-toplevel'.split())
+        if git_base_dir.strip():
+            return True
+    except subprocess.CalledProcessError as err:  # It's not a git repo
+        c1 = subprocess.call('git init'.split())
+        if c1 != 0: return False  # noqa
+        c2 = subprocess.call('git add .'.split())
+        if c2 != 0: return False  # noqa
+        c3 = subprocess.call('git commit -m "Initial commit"'.split())
+        if c3 != 0: return False  # noqa
+        return True
+
+
 if __name__ == '__main__':
     username = "AllanLRH"
     private = True
     if len(sys.argv) == 1:
         reponame = os.getcwd().split(os.path.sep)[-1]
-        if ".git" not in os.listdir("."):
-            print("Error! No dir provided, and current dir is not a git repository!",
-                  file=sys.stderr)
-            sys.exit(1)
+        initialize_repo_if_nonexistent()
     else:
         reponame = sys.argv[1]
         if len(sys.argv) == 3:

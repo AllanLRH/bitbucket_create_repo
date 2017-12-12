@@ -8,7 +8,7 @@ import os
 
 def get_internet_password(user, webpage):
     pwdBytes = subprocess.check_output(
-        "security find-internet-password -a {user} -s {webpage} -w".format(
+        "security find-generic-password -a {user} -s {webpage} -w".format(
             user=user, webpage=webpage).split())
     password = pwdBytes.decode('utf-8').strip()
     return password
@@ -30,7 +30,7 @@ def create_repo(username, reponame, scm="git", private=True):
 
 def git_add_and_push_to_remote(username, reponame):
     addCommand = "git remote add origin git@bitbucket.org:{username}/{reponame}.git".format(
-        username=username, reponame=reponame)
+        username=username, reponame=reponame.lower())
     subprocess.call(addCommand.split())
     subprocess.call("git push -u origin --all".split())
     subprocess.call("git push origin --tags".split())
@@ -48,7 +48,7 @@ def initialize_repo_if_nonexistent():
         if c1 != 0: return False  # noqa
         c2 = subprocess.call('git add .'.split())
         if c2 != 0: return False  # noqa
-        c3 = subprocess.call('git commit -m "Initial commit"'.split())
+        c3 = subprocess.call(['git', 'commit', '-m', '"Initial commit"'])
         if c3 != 0: return False  # noqa
         return True
 

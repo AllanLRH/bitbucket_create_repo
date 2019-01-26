@@ -8,7 +8,7 @@ import os
 
 def get_internet_password(user, webpage):
     pwdBytes = subprocess.check_output(
-        "security find-generic-password -a {user} -s {webpage} -w".format(
+        "security find-internet-password -a {user} -s {webpage} -w".format(
             user=user, webpage=webpage).split())
     password = pwdBytes.decode('utf-8').strip()
     return password
